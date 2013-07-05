@@ -1,0 +1,60 @@
+<!doctype html>
+<head>
+
+<link rel="stylesheet" href="touchgallery.css" />
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+<script type="text/javascript" src="jquery.touchSwipe.min.js"></script>
+
+<script src="touchgallery.js">
+
+/***********************************************
+* Touch Image Gallery- (c) Dynamic Drive DHTML code library (www.dynamicdrive.com)
+* This notice MUST stay intact for legal use
+* Visit Dynamic Drive at http://www.dynamicdrive.com/ for this script and 100s more
+***********************************************/
+
+</script>
+
+<script>
+
+jQuery(function(){ // on DOM load
+		$('div#touchgallery1').touchgallery({  // initialize first demo
+			width: 250,
+			height: 200
+		})
+		$('div#touchgallery2').touchgallery({  // initialize second demo
+			width: 400,
+			height: 350
+		})
+	})
+
+</script>
+
+</head>
+
+<body>
+
+<div id="touchgallery1" class="touchgallery">
+<ul>
+<li><img src="pool.jpg" /></li>
+<li><img src="cave.jpg" /></li>
+<li><img src="fruits.jpg" /></li>
+<li><img src="autumn.jpg" /></li>
+</ul>
+</div>
+
+<br /><br />
+
+<div id="touchgallery2" class="touchgallery">
+<ul>
+<li><img src="amster1.jpg" /></li>
+<li><img src="amster2.jpg" /></li>
+<li><img src="amster3.jpg" /></li>
+<li><img src="amster4.jpg" /></li>
+</ul>
+</div>
+
+</body>
+
+</html>

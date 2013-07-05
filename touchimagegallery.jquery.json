@@ -1,0 +1,25 @@
+{
+  "name": "touchimagegallery",
+  "title": "Touch Image Gallery",
+  "description": "Touch Image Gallery is a simple image gallery that caters to mobile and desktop browsers alike, by being touch/ swipe friendly, in addition to the traditional way of navigating. The gallery itself consists of just a regular UL list with images defined inside it.",
+  "keywords": ["gallery", "images", "swipe", "touch"],
+  "version": "1.0.0",
+  "author": {
+    "name": "Dynamic Drive",
+    "email" : "ddrivehelp@gmail.com",
+		"url": "http://www.dynamicdrive.com"
+  },
+  "licenses": [
+    {
+      "type": "Freeware",
+      "url": "http://www.dynamicdrive.com/notice.htm"
+    }
+  ],
+  "dependencies": {
+    "jquery": ">=1.4"
+  },
+  "homepage": "http://www.dynamicdrive.com/dynamicindex4/touchgallery.htm",
+  "docs": "http://www.dynamicdrive.com/dynamicindex4/touchgallery.htm",
+  "demo": "http://www.dynamicdrive.com/dynamicindex4/touchgallery.htm",
+  "download": "http://www.dynamicdrive.com/dynamicindex4/touchgallery.htm"
+}
