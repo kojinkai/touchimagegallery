@@ -13,6 +13,7 @@
   var defaults = {
     width: 300,
     height: 250,
+    currentWidth: 0,
     navarea: '20%',
     curslide: 0,
     threshold: 75,
@@ -22,27 +23,16 @@
   var swipeOptions = {
     triggerOnTouchEnd : true,
     triggerOnTouchLeave : true,
-    allowPageScroll:"vertical",
-    swipe: function(event, direction, distance, duration, fingercount) {
-      console.log('event: ', event, '\n', 'duration: ', duration);
-    }
-  };
-
-  // jQuery.support.transition
-  // to verify that CSS3 transition is supported (or any of its browser-specific implementations)
-  $.support.transition = (function(){ 
-      var thisBody = document.body || document.documentElement,
-      thisStyle = thisBody.style,
-      support = thisStyle.transition !== undefined || thisStyle.WebkitTransition !== undefined || thisStyle.MozTransition !== undefined || thisStyle.MsTransition !== undefined || thisStyle.OTransition !== undefined;
-      
-      return support; 
-  })();  
+    allowPageScroll:"vertical"
+  }; 
 
   function Touchgallery(element, options)  {
     
     this._name = touchgallery;
     this.element = element;
+    this.slides = $(this.element).find('.slide');
     this.options = $.extend( {}, defaults, options);
+    
     this.swipestart = false;
     this.dist = 0;
     this.initialx = 0;
@@ -53,42 +43,85 @@
   Touchgallery.prototype = {
     
     init: function() {
-      
-      $(this.element).addClass('touchgallery');
-      
+      this.checkTransitionSupport();
       this.swipeHandlers();
       
       $(this.element).swipe(swipeOptions);
     },
+
+    checkTransitionSupport: function(){
+      //Check 3d support
+      var translate3D = "translate3d(0px, 0px, 0px)",
+        tempElem = document.createElement("div");
+
+      tempElem.style.cssText = "  -moz-transform:"    + translate3D +
+                                  "; -ms-transform:"     + translate3D +
+                                  "; -o-transform:"      + translate3D +
+                                  "; -webkit-transform:" + translate3D +
+                                  "; transform:"         + translate3D;
+      
+      var regex = /translate3d\(0px, 0px, 0px\)/g,
+        asSupport = tempElem.style.cssText.match(regex),
+        support3d = (asSupport !== null && asSupport.length === 1);
+
+      var isTouch = "ontouchstart" in window || navigator.msMaxTouchPoints;
+
+      this.browser = {
+        "support3d" : support3d,
+        "isTouch" : isTouch
+      };
+    },
+
+    calcWidth: function() {
+      this.options.currentWidth = $(this.slides).first().width();
+    },
+
+    doTranslate : function(pixels){
+      return {
+        "-webkit-transform": "translate3d("+pixels+"px, 0px, 0px)",
+        "-moz-transform": "translate3d("+pixels+"px, 0px, 0px)",
+        "-o-transform": "translate3d("+pixels+"px, 0px, 0px)",
+        "-ms-transform": "translate3d("+pixels+"px, 0px, 0px)",
+        "transform": "translate3d("+pixels+"px, 0px,0px)"
+      };
+    },
     
     swipeHandlers: function(element) {
 
-      var $wrapper = $(this.element),
-        $lis = $wrapper.find('.slide');
-
       var that = this;
+
       // Set up the swipeoptions for when the event is triggered
       swipeOptions.swipeStatus = function(event, phase, direction, distance) {
-        console.log("phase: ", phase);
+
         var swipecount = 0;
-        console.log('that is: ', $wrapper);
-        if (phase == 'start'){
-          // that.swipestart = true;
-          that.initialx = parseInt( $wrapper.css('left'), 10 );
+        
+        if (phase == 'start') {
+          
+          // grab the slide width
+          that.calcWidth();
+
+          that.swipestart = true;
+
+          // that.initialx = parseInt( $(this.element).css('left'), 10 );
           that.dist = 0;
         }
-        // else if (phase == "move" && swipestart) {
-        //   that.dist = (direction == 'left'? -1 : 1) * distance + that.initialx;
+        else if (phase == "move" && that.swipestart) {
+            
+          that.dist = (direction == 'left' ? -1 : 1) * distance + that.initialx;
+          $(that.element).css( that.doTranslate(Math.min(that.dist, that.options.width) ) );
           
-        //   $wrapper.css('left', Math.min(dist, (that.options.curslide+1) * that.options.width) );
-        // }
+        }
         // else if (phase == 'cancel') {
-        //   $wrapper.css('left', -that.options.width * that.options.curslide);
+        //   $(that.element).css('left', -that.options.width * that.options.curslide);
         // }
-        // else if (phase == 'end'){
-        //   if (distance < that.options.threshold) { // snap back
-        //     // navigate(that.options.curslide);
-        //   } 
+        else if (phase == 'end'){
+          if (distance < that.options.threshold) { // snap back
+            that.resetPos(that.currentSlide);
+          }
+          else {
+            that.advanceSlide(direction);
+          }
+        } 
         //   else{
         //     swipecount ++;
         //     if (swipecount == 1){
@@ -98,14 +131,37 @@
         //   // that.swipestart = false;
         // }
       };
-
-      // swipeOptions.swipe = function(event, direction, distance, duration, fingercount) {
-      //   console.log('event: ', event, '\n', 'duration: ', duration);
-      // };
     },
+
+    advanceSlide: function(dir) {
+      if ( dir === 'left' ) {
+        this.currentSlide++;
+      }
+      else {
+        this.currentSlide--;
+      }
+      this.resetPos(this.currentSlide);
+    },
+
+    resetPos: function(slide) {
+      var offsetPos = (slide === 0) ? 0 : -slide * this.options.currentWidth;
+      
+      console.log('offsetpos is: ', offsetPos);
+
+      $(this.element).css( this.doTranslate(offsetPos) );
+      // if ( offsetPos > 0 ) {
+        
+      // }
+      // else {
+      //   $(this.element).css( this.doTranslate(-offsetPos) ); 
+      // }
+    },
+
     destroy: function() {
       console.log('destroy');
-    }
+    },
+    
+    currentSlide: 0,    
   };  
 
   $.fn[touchgallery] = function ( options ) {
