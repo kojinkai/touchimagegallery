@@ -13,6 +13,7 @@
   var defaults = {
     width: 300,
     height: 250,
+    fullWidth: true,
     currentWidth: 0,
     navarea: '20%',
     curslide: 0,
@@ -43,6 +44,7 @@
   Touchgallery.prototype = {
     
     init: function() {
+      console.log('init: ', this.currentSlide);
       this.checkTransitionSupport();
       this.swipeHandlers();
       
@@ -73,7 +75,15 @@
     },
 
     calcWidth: function() {
-      this.options.currentWidth = $(this.slides).first().width();
+      var slideWidth = $(this.slides).first().width(),
+        windowWidth = $(window).width();
+      
+      if ( this.options.fullWidth ) {
+        this.options.currentWidth = slideWidth - ( windowWidth - slideWidth);
+      }
+      else {
+        this.options.currentWidth = slideWidth;
+      }
     },
 
     doTranslate : function(pixels){
@@ -102,7 +112,6 @@
 
           that.swipestart = true;
 
-          // that.initialx = parseInt( $(this.element).css('left'), 10 );
           that.dist = 0;
         }
         else if (phase == "move" && that.swipestart) {
@@ -115,8 +124,8 @@
         //   $(that.element).css('left', -that.options.width * that.options.curslide);
         // }
         else if (phase == 'end'){
-          if (distance < that.options.threshold) { // snap back
-            that.resetPos(that.currentSlide);
+          if ( distance < that.options.threshold || (that.currentSlide === 0 && direction == 'right') || that.slides.length === that.currentSlide + 1 ) { // snap back
+            that.setPos(that.currentSlide);
           }
           else {
             that.advanceSlide(direction);
@@ -138,23 +147,18 @@
         this.currentSlide++;
       }
       else {
-        this.currentSlide--;
+        this.currentSlide-= 1;
       }
-      this.resetPos(this.currentSlide);
+      this.setPos(this.currentSlide);
     },
 
-    resetPos: function(slide) {
+    setPos: function(slide) {
+      console.log('setPos fired');
+      console.log('currentSlide: ', this.currentSlide);
       var offsetPos = (slide === 0) ? 0 : -slide * this.options.currentWidth;
-      
-      console.log('offsetpos is: ', offsetPos);
 
       $(this.element).css( this.doTranslate(offsetPos) );
-      // if ( offsetPos > 0 ) {
-        
-      // }
-      // else {
-      //   $(this.element).css( this.doTranslate(-offsetPos) ); 
-      // }
+      this.initialx = offsetPos;
     },
 
     destroy: function() {
